@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AppIA · Brief de tu app</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== Configuración rápida ===== */
+  :root{
+    --bg:#090C16; --bg2:#0F1424; --card:#141A2E; --line:#232B45;
+    --txt:#EEF1F8; --mut:#8C95B2; --a1:#7C5CFF; --a2:#22D3EE;
+    --ok:#34D399; --err:#FB7185;
+    --grad:linear-gradient(120deg,var(--a1),var(--a2));
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+  body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .glow{position:fixed;inset:-30%;background:
+     radial-gradient(40% 35% at 20% 15%,rgba(124,92,255,.22),transparent 70%),
+     radial-gradient(35% 30% at 85% 80%,rgba(34,211,238,.16),transparent 70%);
+     pointer-events:none;animation:drift 18s ease-in-out infinite alternate}
+  @keyframes drift{to{transform:translate(4%,-3%) scale(1.05)}}
+  .grid{position:fixed;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+     background-size:44px 44px;opacity:.18;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);pointer-events:none}
+
+  header{position:fixed;top:env(safe-area-inset-top);left:0;right:0;z-index:5;padding:14px 20px 0}
+  .top{display:flex;justify-content:space-between;align-items:center;max-width:680px;margin:0 auto}
+  .logo{font-family:"Space Grotesk",Inter,system-ui,sans-serif;font-weight:700;font-size:20px;letter-spacing:-.5px}
+  .logo span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .count{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
+  .bar{max-width:680px;margin:10px auto 0;height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--grad);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+
+  main{position:relative;height:100%;max-width:680px;margin:0 auto}
+  .step{position:absolute;inset:0;padding:96px 22px 120px;overflow-y:auto;display:flex;flex-direction:column;
+        opacity:0;transform:translateY(60px);pointer-events:none;transition:opacity .45s ease,transform .55s cubic-bezier(.2,.8,.2,1)}
+  .step.on{opacity:1;transform:none;pointer-events:auto}
+  .step.up{transform:translateY(-60px)}
+  .step::-webkit-scrollbar{width:0}
+  .step>:first-child{margin-top:auto}.step>:last-child{margin-bottom:auto}
+  .k{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--a2);font-weight:600;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+  .k b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:rgba(34,211,238,.12);font-size:11px}
+  h1{font-family:"Space Grotesk",Inter,system-ui,sans-serif;font-size:clamp(30px,7vw,46px);line-height:1.05;letter-spacing:-1px;margin-bottom:14px}
+  h2{font-family:"Space Grotesk",Inter,system-ui,sans-serif;font-size:clamp(23px,5.4vw,32px);line-height:1.15;letter-spacing:-.5px;margin-bottom:8px}
+  .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  p.sub{color:var(--mut);font-size:15px;line-height:1.5;margin-bottom:22px}
+  label.l{display:block;font-size:13px;color:var(--mut);margin:16px 0 6px}
+
+  input[type=text],input[type=tel],input[type=email],input[type=number],input[type=time],input[type=date],textarea,select{
+    width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:14px;color:var(--txt);
+    font:500 17px Inter;padding:15px 16px;outline:none;transition:border .2s,box-shadow .2s;color-scheme:dark}
+  textarea{min-height:110px;resize:none;line-height:1.45}
+  input:focus,textarea:focus,select:focus{border-color:var(--a1);box-shadow:0 0 0 4px rgba(124,92,255,.18)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{border:1.5px solid var(--line);background:var(--card);color:var(--txt);border-radius:14px;padding:13px 16px;font:500 15px Inter;
+        cursor:pointer;display:flex;align-items:center;gap:9px;transition:all .18s;user-select:none}
+  .chip .em{font-size:18px}
+  .chip:hover{border-color:#3a4570}
+  .chip.sel{border-color:transparent;background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad) border-box;box-shadow:0 6px 22px -8px rgba(124,92,255,.55)}
+  .chip.sel::after{content:"✓";font-size:13px;color:var(--a2);font-weight:700}
+  .opts{display:grid;gap:10px}
+  .opt{border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:15px 16px;cursor:pointer;display:flex;gap:14px;align-items:flex-start;transition:all .18s}
+  .opt .em{font-size:22px;line-height:1}
+  .opt b{display:block;font-size:16px;margin-bottom:3px}
+  .opt small{color:var(--mut);font-size:13.5px;line-height:1.4}
+  .opt .key{margin-left:auto;font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:2px 7px;align-self:center}
+  .opt.sel{border-color:transparent;background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad) border-box}
+  .opt.sel .key{background:var(--grad);color:#fff;border-color:transparent}
+  .addrow{display:flex;gap:8px;margin-top:12px}
+  .addrow input{padding:11px 14px;font-size:15px}
+  .btn-s{border:1.5px dashed #3a4570;background:none;color:var(--mut);border-radius:12px;padding:0 16px;font:600 14px Inter;cursor:pointer;white-space:nowrap}
+  .hint{font-size:13px;color:var(--mut);margin-top:10px}
+
+  .stepper{display:flex;align-items:center;gap:14px}
+  .stepper button{width:52px;height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--txt);font-size:24px;cursor:pointer}
+  .stepper output{font-family:"Space Grotesk",Inter,system-ui,sans-serif;font-size:38px;min-width:64px;text-align:center}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  .prod{display:grid;grid-template-columns:1fr 110px 96px 34px;gap:8px;margin-bottom:8px;align-items:center}
+  .prod input,.prod select{padding:12px 12px;font-size:15px;border-radius:12px}
+  .prod .x{background:none;border:none;color:var(--mut);font-size:20px;cursor:pointer}
+  @media (max-width:420px){.prod{grid-template-columns:1fr 104px 34px}.prod select{grid-column:1/3}}
+
+  .sw{display:flex;gap:12px;flex-wrap:wrap}
+  .sw button{width:50px;height:50px;border-radius:50%;border:3px solid transparent;cursor:pointer;position:relative}
+  .sw button.sel{border-color:#fff;box-shadow:0 0 0 3px var(--a1)}
+
+  .err{color:var(--err);font-size:14px;margin-top:12px;min-height:18px;font-weight:500}
+
+  footer{position:fixed;bottom:0;left:0;right:0;padding:14px 20px calc(16px + env(safe-area-inset-bottom));z-index:5;
+         background:linear-gradient(transparent,var(--bg) 35%)}
+  .nav{max-width:680px;margin:0 auto;display:flex;gap:10px;align-items:center}
+  .back{width:54px;height:54px;border-radius:16px;border:1.5px solid var(--line);background:var(--bg2);color:var(--txt);font-size:20px;cursor:pointer}
+  .next{flex:1;height:54px;border-radius:16px;border:none;background:var(--grad);color:#fff;font:600 17px Inter;cursor:pointer;
+        box-shadow:0 10px 30px -10px rgba(124,92,255,.7);display:flex;justify-content:center;align-items:center;gap:10px}
+  .next kbd{font:500 11px Inter;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 7px}
+  .next:active{transform:scale(.98)}
+  .swipe{text-align:center;color:var(--mut);font-size:12px;margin-top:8px}
+
+  /* intro */
+  .hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 26px}
+  .hb{font-size:13px;border:1px solid var(--line);background:rgba(20,26,46,.7);border-radius:999px;padding:7px 12px;color:#cdd3e6}
+  .orb{width:86px;height:86px;border-radius:26px;background:var(--grad);display:grid;place-items:center;margin-bottom:26px;
+       box-shadow:0 20px 60px -15px rgba(124,92,255,.8);font-family:"Space Grotesk",Inter,system-ui,sans-serif;font-weight:700;font-size:30px;animation:float 4s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-8px) rotate(-3deg)}}
+
+  /* resumen */
+  .plan{border-radius:20px;padding:20px;background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad) border-box;border:2px solid transparent;margin-bottom:18px}
+  .plan .pn{font-family:"Space Grotesk",Inter,system-ui,sans-serif;font-size:26px;font-weight:700}
+  .plan .pp{font-size:15px;color:var(--mut);margin-top:2px}
+  .plan ul{list-style:none;margin-top:12px;display:grid;gap:6px;font-size:14.5px}
+  .plan li::before{content:"✦ ";color:var(--a2)}
+  .sum{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 16px;margin-bottom:16px}
+  .sum div{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .sum div:last-child{border:none}
+  .sum span:first-child{color:var(--mut);flex-shrink:0}
+  .sum span:last-child{text-align:right}
+  .acts{display:grid;gap:10px}
+  .wa{display:flex;justify-content:center;align-items:center;gap:10px;height:56px;border-radius:16px;background:#25D366;color:#062b16;font:700 17px Inter;text-decoration:none}
+  .ghost{height:50px;border-radius:14px;border:1.5px solid var(--line);background:none;color:var(--txt);font:600 15px Inter;cursor:pointer}
+  .trial{font-size:13.5px;color:var(--mut);line-height:1.5;margin-top:16px;text-align:center}
+  .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);background:#1f2742;border:1px solid var(--line);padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.3s;z-index:9}
+  .toast.on{opacity:1;transform:translateX(-50%)}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="glow"></div><div class="grid"></div>
+
+<header>
+  <div class="top"><div class="logo">App<span>IA</span></div><div class="count" id="count"></div></div>
+  <div class="bar"><i id="bar"></i></div>
+</header>
+
+<main id="main"></main>
+
+<footer id="foot">
+  <div class="nav">
+    <button class="back" id="back" aria-label="Volver">↑</button>
+    <button class="next" id="next">Continuar <kbd>Enter ↵</kbd></button>
+  </div>
+  <div class="swipe" id="swipeHint">Deslizá hacia arriba para avanzar</div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== CONFIG: tu número de WhatsApp (con 549 + característica, sin 0 ni 15) ===== */
+const WA_NUMBER = "5492233467936";
+const PRECIOS = {Base:35000, Pro:50000, Premium:75000};
+
+const KEY="appia-brief-v1";
+let A={}; try{A=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}};
+const $=s=>document.querySelector(s);
+const fmt=n=>"$"+Number(n).toLocaleString("es-AR");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ===== Definición de pasos ===== */
+const STEPS=[
+ {id:"intro",intro:true},
+ {id:"negocio",t:"¿Cómo se llama tu negocio?",s:"Con este nombre armamos tu app.",type:"fields",
+   fields:[{k:"negocio",l:"Nombre del negocio",ph:"Ej: Panadería Corteza",req:1},{k:"nombre",l:"Tu nombre",ph:"Ej: Juan",req:1}]},
+ {id:"rubro",t:"¿Cuál es tu rubro?",type:"single",k:"rubro",other:true,
+   o:[["🥐","Panadería / Confitería"],["🏋️","Gimnasio"],["☕","Cafetería"],["🛒","Almacén / Autoservicio"],["🍽️","Restaurante / Rotisería"],["👕","Tienda / Indumentaria"]]},
+ {id:"hoy",t:"Hoy, ¿cómo registran las ventas?",s:"Sin vueltas: es para saber desde dónde arrancamos.",type:"single",k:"registro",
+   o:[["📝","En papel / cuaderno"],["📊","En Excel o planilla"],["🧾","Caja registradora"],["💻","Otro sistema"],["🤷","No las registramos"]]},
+ {id:"dolor",t:"¿Qué es lo que <span class='grad'>más te complica</span> hoy?",s:"Elegí hasta 3.",type:"multi",k:"dolores",max:3,min:1,
+   o:[["💰","Saber cuánto vendí en el día"],["🧮","Faltantes o diferencias de caja"],["👥","Controlar a los empleados y sus horarios"],["📦","Productos que se agotan o sobran"],["🏷️","Precios desactualizados"],["⏱️","Se tarda mucho en cobrar"],["📈","No sé qué es lo que más se vende"],["📵","No puedo ver el negocio cuando no estoy"]]},
+ {id:"una",t:"Si mañana pudieras arreglar <span class='grad'>una sola cosa</span>, ¿cuál sería?",s:"Con tus palabras. Esto es lo primero que vamos a resolver.",type:"text",k:"prioridad",min:5,ph:"Ej: saber al cierre si la caja da bien sin tener que contar todo a mano…"},
+ {id:"equipo",t:"Tu equipo",s:"¿Cuántas personas trabajan y en qué sectores?",type:"team"},
+ {id:"horario",t:"¿En qué horario abren?",type:"hours"},
+ {id:"pagos",t:"¿Qué medios de pago aceptan?",type:"multi",k:"pagos",min:1,
+   o:[["💵","Efectivo"],["📱","Mercado Pago / QR"],["💳","Débito"],["💳","Crédito"],["🏦","Transferencia"],["📒","Cuenta corriente / fiado"]]},
+ {id:"cats",t:"¿Cómo se organizan tus productos?",s:"Tocá las categorías que tenés. Podés sumar las tuyas.",type:"cats"},
+ {id:"top",t:"Tus productos <span class='grad'>más vendidos</span>",s:"Opcional, pero acelera todo: cargá algunos con su precio.",type:"products"},
+ {id:"disp",t:"¿Desde dónde van a cobrar?",type:"device"},
+ {id:"vivo",t:"Desde tu celular, ¿qué querés ver <span class='grad'>en vivo</span>?",type:"multi",k:"vivo",min:1,
+   o:[["⚡","Cada venta, al instante"],["🧾","Cómo va la caja del día"],["👥","Qué empleados están trabajando"],["🏆","Lo más vendido"],["📊","Comparación con ayer y la semana pasada"],["🔔","Alertas (caja con diferencia, ventas bajas)"]]},
+ {id:"mods",t:"¿Qué te gustaría sumar?",s:"Elegí lo que te interese. Lo podés probar en los 7 días.",type:"mods"},
+ {id:"marca",t:"Tu identidad",s:"Para que la app se vea como tu negocio.",type:"brand"},
+ {id:"contacto",t:"¿Dónde te contactamos?",s:"Por acá coordinamos la entrega y tus mejoras diarias.",type:"fields",
+   fields:[{k:"wa",l:"WhatsApp",ph:"Ej: 223 512 3456",req:1,tel:1},{k:"email",l:"Email (opcional)",ph:"tu@email.com",email:1}]},
+ {id:"fin",summary:true}
+];
+const MODS=[
+ ["equipo","👥","Equipo en vivo","Fichaje con código + foto, por sector. Ves quién está y desde qué hora."],
+ ["backup","🛡️","Backup diario ilimitado","Una copia de tu negocio cada noche, en una bóveda que nadie puede borrar."],
+ ["ia","🧠","Socio IA","Te dice cuánto producir, en qué horarios reforzar y responde tus preguntas sobre el negocio."],
+ ["stock","📦","Stock de insumos y recetas","Controlá harina, manteca, mercadería… y cuánto cuesta cada producto."],
+ ["arca","🧾","Facturación electrónica ARCA","Emití facturas desde la misma caja."],
+ ["boveda","🔐","Bóveda Privada","Tu propia bóveda cifrada: solo vos tenés la llave. Ni nosotros podemos ver tus datos."]
+];
+const EXTRAS={stock:15000,arca:12000,boveda:9000};
+const COLORS=["#8B5E34","#D97706","#DC2626","#DB2777","#7C3AED","#2563EB","#059669","#111827","#F5F5F4"];
+
+let cur=0, dir=1;
+
+/* ===== Render ===== */
+function chipHTML(k,list,multi){
+  const val=A[k]; return list.map(([em,txt])=>{
+    const sel=multi?(val||[]).includes(txt):val===txt;
+    return `<button class="chip${sel?" sel":""}" data-k="${k}" data-v="${esc(txt)}" data-m="${multi?1:0}"><span class="em">${em}</span>${esc(txt)}</button>`}).join("");
+}
+function optHTML(k,list){
+  return `<div class="opts">`+list.map(([em,txt],i)=>`<div class="opt${A[k]===txt?" sel":""}" data-k="${k}" data-v="${esc(txt)}" data-m="0"><span class="em">${em}</span><div><b>${esc(txt)}</b></div><span class="key">${String.fromCharCode(65+i)}</span></div>`).join("")+`</div>`;
+}
+function stepHTML(st,i){
+  const n=i, tot=STEPS.length-2;
+  const k=st.intro||st.summary?"":`<div class="k"><b>${n}</b>Pregunta ${n} de ${tot}</div>`;
+  let body="";
+  if(st.intro){
+    return `<div class="orb">IA</div>
+    <h1>Armemos <span class="grad">tu app</span> en 3 minutos.</h1>
+    <p class="sub">Contestá unas preguntas rápidas sobre tu negocio. Con esto preparamos tu app a medida y te la entregamos para que la pruebes.</p>
+    <div class="hero-badges"><span class="hb">🎁 7 días gratis</span><span class="hb">🌙 Cada noche mejora</span><span class="hb">🔒 Tus datos son tuyos</span><span class="hb">💳 Sin tarjeta</span></div>`;
+  }
+  if(st.summary) return summaryHTML();
+  if(st.type==="fields") body=st.fields.map(f=>`<label class="l">${f.l}</label><input ${f.tel?'type="tel" inputmode="tel"':f.email?'type="email" inputmode="email"':'type="text"'} data-f="${f.k}" placeholder="${esc(f.ph)}" value="${esc(A[f.k]||"")}" autocomplete="off">`).join("");
+  if(st.type==="single"){
+    body=optHTML(st.k,st.o);
+    if(st.other) body+=`<div class="addrow"><input type="text" data-f="${st.k}_otro" placeholder="¿Otro? Escribilo acá" value="${esc(A[st.k+"_otro"]||"")}"></div>`;
+  }
+  if(st.type==="multi") body=`<div class="chips">${chipHTML(st.k,st.o,true)}</div>`+(st.max?`<div class="hint" id="cnt-${st.k}"></div>`:"");
+  if(st.type==="text") body=`<textarea data-f="${st.k}" placeholder="${esc(st.ph)}">${esc(A[st.k]||"")}</textarea>`;
+  if(st.type==="team"){
+    A.empleados??=3; A.sectores??=["Mostrador"];
+    const base=["Mostrador","Producción","Pastelería","Cocina","Limpieza","Reparto","Administración"];
+    const all=[...new Set([...base,...A.sectores])];
+    body=`<label class="l">Cantidad de empleados</label>
+      <div class="stepper"><button data-step="empleados" data-d="-1">−</button><output id="o-empleados">${A.empleados}</output><button data-step="empleados" data-d="1">+</button></div>
+      <label class="l">Sectores</label><div class="chips" id="sect">${chipHTML("sectores",all.map(x=>["",x]),true)}</div>
+      <div class="addrow"><input type="text" id="newSect" placeholder="Agregar sector"><button class="btn-s" data-add="sectores">+ Agregar</button></div>`;
+  }
+  if(st.type==="hours"){
+    A.dias??=["Lun","Mar","Mié","Jue","Vie","Sáb"];
+    body=`<div class="row2"><div><label class="l">Abre</label><input type="time" data-f="abre" value="${A.abre||"07:00"}"></div><div><label class="l">Cierra</label><input type="time" data-f="cierra" value="${A.cierra||"21:00"}"></div></div>
+      <label class="l">Días</label><div class="chips">${chipHTML("dias",["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(d=>["",d]),true)}</div>
+      <div class="opts" style="margin-top:14px"><div class="opt${A.corrido==="Horario corrido"?" sel":""}" data-k="corrido" data-v="Horario corrido" data-m="0"><span class="em">⏳</span><div><b>Horario corrido</b><small>Sin cerrar al mediodía</small></div></div>
+      <div class="opt${A.corrido==="Cortado"?" sel":""}" data-k="corrido" data-v="Cortado" data-m="0"><span class="em">🕑</span><div><b>Horario cortado</b><small>Cierra al mediodía</small></div></div></div>`;
+  }
+  if(st.type==="cats"){
+    const sug=(A.rubro||"").startsWith("Gimnasio")?["Cuotas","Clases","Suplementos","Bebidas","Indumentaria"]:["Panadería","Facturas","Pastelería","Tortas","Tartas","Sandwichería","Galletitas","Roscas","Bebidas"];
+    A.cats??=[];
+    const all=[...new Set([...sug,...A.cats])];
+    body=`<div class="chips">${chipHTML("cats",all.map(x=>["",x]),true)}</div>
+      <div class="addrow"><input type="text" id="newCat" placeholder="Agregar categoría"><button class="btn-s" data-add="cats">+ Agregar</button></div>
+      <label class="l">¿Cuántos productos tenés, más o menos?</label><div class="chips">${chipHTML("cantProd",[["","Menos de 30"],["","30 a 80"],["","80 a 150"],["","Más de 150"]],false)}</div>
+      <label class="l">¿Tenés una lista de precios?</label><div class="chips">${chipHTML("lista",[["📸","Sí, te mando foto"],["📄","Sí, en Excel/PDF"],["✋","No, la armamos juntos"]],false)}</div>`;
+  }
+  if(st.type==="products"){
+    A.prods??=[{n:"",p:"",u:"Unidad"},{n:"",p:"",u:"Unidad"},{n:"",p:"",u:"Kilo"}];
+    body=`<div id="prods">${A.prods.map((p,j)=>`<div class="prod"><input type="text" data-p="${j}" data-pk="n" placeholder="Producto" value="${esc(p.n)}"><input type="number" inputmode="numeric" data-p="${j}" data-pk="p" placeholder="Precio $" value="${esc(p.p)}"><select data-p="${j}" data-pk="u">${["Unidad","Kilo","Docena","Porción"].map(u=>`<option${p.u===u?" selected":""}>${u}</option>`).join("")}</select><button class="x" data-del="${j}" aria-label="Quitar">×</button></div>`).join("")}</div>
+      <div class="addrow"><button class="btn-s" style="height:46px;flex:1" data-addprod>+ Agregar producto</button></div>
+      <div class="hint">Tip: con 10 a 20 productos ya cubrís la mayoría de las ventas.</div>`;
+  }
+  if(st.type==="device"){
+    A.puestos??=1;
+    body=optHTML("device",[["📲","Tablet en el mostrador"],["📱","Celular"],["💻","Computadora"],["🤔","Todavía no tengo, asesórenme"]])+
+      `<label class="l">¿Cuántos puestos de cobro?</label><div class="stepper"><button data-step="puestos" data-d="-1">−</button><output id="o-puestos">${A.puestos}</output><button data-step="puestos" data-d="1">+</button></div>`;
+  }
+  if(st.type==="mods"){
+    A.mods??=[];
+    body=`<div class="opts">`+MODS.map(([id,em,t,d])=>`<div class="opt${A.mods.includes(id)?" sel":""}" data-k="mods" data-v="${id}" data-m="1"><span class="em">${em}</span><div><b>${t}</b><small>${d}</small></div></div>`).join("")+`</div>`;
+  }
+  if(st.type==="brand"){
+    body=`<label class="l">¿Tenés logo?</label><div class="chips">${chipHTML("logo",[["✅","Sí, te lo mando"],["✏️","No, me gustaría uno"]],false)}</div>
+      <label class="l">Color principal de tu marca</label><div class="sw">${COLORS.map(c=>`<button data-color="${c}" class="${A.color===c?"sel":""}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>
+      <label class="l">¿Tu Instagram? (opcional)</label><input type="text" data-f="ig" placeholder="@tunegocio" value="${esc(A.ig||"")}">`;
+  }
+  return `${k}<h2>${st.t}</h2>${st.s?`<p class="sub">${st.s}</p>`:""}${body}<div class="err" id="err"></div>`;
+}
+
+function plan(){
+  const m=A.mods||[];
+  const p=m.includes("ia")?"Premium":(m.includes("equipo")||m.includes("backup"))?"Pro":"Base";
+  const ex=m.filter(x=>EXTRAS[x]);
+  const total=PRECIOS[p]+ex.reduce((s,x)=>s+EXTRAS[x],0);
+  return {p,ex,total};
+}
+const INCL={Base:["Caja rápida y cierre de caja","Panel del dueño en vivo","Reportes de ventas"],
+  Pro:["Todo lo de Base","Equipo en vivo (fichaje)","Backup diario ilimitado"],
+  Premium:["Todo lo de Pro","Socio IA: consejos y resumen diario","Preguntale lo que quieras a tu negocio"]};
+
+function rows(){
+  const r=[
+   ["Negocio",A.negocio],["Contacto",A.nombre],["Rubro",A.rubro_otro||A.rubro],["Hoy registra",A.registro],
+   ["Le complica",(A.dolores||[]).join(", ")],["Prioridad #1",A.prioridad],
+   ["Equipo",`${A.empleados??"-"} pers. · ${(A.sectores||[]).join(", ")}`],
+   ["Horario",`${A.abre||"07:00"}–${A.cierra||"21:00"} · ${(A.dias||[]).join(" ")}${A.corrido?" · "+A.corrido:""}`],
+   ["Pagos",(A.pagos||[]).join(", ")],["Categorías",(A.cats||[]).join(", ")],["Productos",A.cantProd],["Lista de precios",A.lista],
+   ["Más vendidos",(A.prods||[]).filter(p=>p.n).map(p=>`${p.n}${p.p?" "+fmt(p.p):""}/${p.u}`).join(" · ")],
+   ["Cobro",`${A.device||"-"} · ${A.puestos??1} puesto(s)`],["Quiere ver en vivo",(A.vivo||[]).join(", ")],
+   ["Módulos",(A.mods||[]).map(id=>MODS.find(m=>m[0]===id)[2]).join(", ")],
+   ["Logo",A.logo],["Color",A.color],["Instagram",A.ig],["WhatsApp",A.wa],["Email",A.email]];
+  return r.filter(x=>x[1]&&String(x[1]).trim());
+}
+function summaryHTML(){
+  const {p,ex,total}=plan();
+  return `<div class="k">✓ Listo</div><h2>¡Gracias${A.nombre?", "+esc(A.nombre):""}! Tu app ya tiene <span class="grad">forma</span>.</h2>
+  <p class="sub">Según lo que nos contaste, este es el plan que mejor encaja con ${esc(A.negocio||"tu negocio")}:</p>
+  <div class="plan"><div class="pn">Plan <span class="grad">${p}</span></div>
+   <div class="pp">${fmt(total)} / mes${ex.length?` (incluye ${ex.map(x=>MODS.find(m=>m[0]===x)[2]).join(" y ")})`:""} · después de la prueba</div>
+   <ul>${INCL[p].map(x=>`<li>${x}</li>`).join("")}</ul></div>
+  <div class="sum">${rows().map(([a,b])=>`<div><span>${a}</span><span>${esc(b)}</span></div>`).join("")}</div>
+  <div class="acts">
+    <a class="wa" id="waBtn" target="_blank" rel="noopener">Enviar brief por WhatsApp</a>
+    <button class="ghost" id="copyBtn">Copiar resumen</button>
+    <button class="ghost" id="editBtn">Revisar respuestas</button>
+  </div>
+  <p class="trial">🎁 Tu prueba de <b>7 días gratis</b> arranca el día que recibís la app.<br>🌙 Cada noche mejora: anotá tus cambios hasta las <b>20 h</b> y a la mañana los tenés listos.</p>`;
+}
+function summaryText(){
+  const {p,total}=plan();
+  return `*BRIEF AppIA* — ${A.negocio||""}\n\n`+rows().map(([a,b])=>`• *${a}:* ${b}`).join("\n")+`\n\n*Plan sugerido:* ${p} (${fmt(total)}/mes)`;
+}
+
+/* ===== Montaje ===== */
+const main=$("#main");
+STEPS.forEach((s,i)=>{const d=document.createElement("section");d.className="step";d.id="s"+i;main.appendChild(d)});
+function paint(i){ $("#s"+i).innerHTML=stepHTML(STEPS[i],i); bindStep(i); updCount(); }
+function show(i){
+  STEPS.forEach((_,j)=>{const el=$("#s"+j); el.classList.remove("on","up"); if(j<i) el.classList.add("up");});
+  paint(i); const el=$("#s"+i); el.scrollTop=0; requestAnimationFrame(()=>el.classList.add("on"));
+  const tot=STEPS.length-1;
+  $("#bar").style.width=(i/tot*100)+"%";
+  $("#count").textContent=STEPS[i].intro?"":STEPS[i].summary?"Completo":`${i} / ${tot-1}`;
+  $("#back").style.visibility=i?"visible":"hidden";
+  const last=STEPS[i].summary;
+  $("#foot").classList.toggle("hide",!!last);
+  $("#next").innerHTML=STEPS[i].intro?"Empezar <kbd>Enter ↵</kbd>":i===STEPS.length-2?"Ver mi plan <kbd>Enter ↵</kbd>":"Continuar <kbd>Enter ↵</kbd>";
+  $("#swipeHint").style.display=i<2?"block":"none";
+  if(last) bindSummary();
+  const f=el.querySelector("input[type=text],textarea"); if(f&&!("ontouchstart" in window)) setTimeout(()=>f.focus({preventScroll:true}),450);
+}
+function updCount(){ const st=STEPS[cur]; if(st.max){const n=(A[st.k]||[]).length; const h=$("#cnt-"+st.k); if(h) h.textContent=`${n} de ${st.max} elegidas`;} }
+
+function bindStep(i){
+  const root=$("#s"+i), st=STEPS[i];
+  root.querySelectorAll("[data-f]").forEach(inp=>inp.addEventListener("input",()=>{A[inp.dataset.f]=inp.value;
+    if(inp.dataset.f.endsWith("_otro")&&inp.value.trim()){const b=inp.dataset.f.slice(0,-5);A[b]="";root.querySelectorAll(`[data-k="${b}"]`).forEach(x=>x.classList.remove("sel"));}
+    save();err("")}));
+  root.querySelectorAll("[data-k]").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.k,v=b.dataset.v;
+    if(b.dataset.m==="1"){ A[k]??=[]; const ix=A[k].indexOf(v);
+      if(ix>-1) A[k].splice(ix,1); else { if(st.max&&A[k].length>=st.max){err(`Podés elegir hasta ${st.max}.`);return;} A[k].push(v);} b.classList.toggle("sel");
+    } else { A[k]=v; root.querySelectorAll(`[data-k="${k}"]`).forEach(x=>x.classList.toggle("sel",x===b));
+      if(k===st.k && st.type==="single"){ A[st.k+"_otro"]=""; const o=root.querySelector(`[data-f="${k}_otro"]`); if(o)o.value=""; save(); setTimeout(next,280); } }
+    save(); err(""); updCount();
+  }));
+  root.querySelectorAll("[data-step]").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.step; A[k]=Math.max(k==="puestos"?1:0,Math.min(99,(A[k]||0)+ +b.dataset.d)); $("#o-"+k).textContent=A[k]; save();}));
+  root.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.add, inp=root.querySelector(k==="cats"?"#newCat":"#newSect"); const v=inp.value.trim(); if(!v) return;
+    A[k]??=[]; if(!A[k].includes(v)) A[k].push(v); save(); paint(cur);}));
+  root.querySelectorAll("#newCat,#newSect").forEach(inp=>inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.stopPropagation();root.querySelector("[data-add]").click();}}));
+  root.querySelectorAll("[data-p]").forEach(inp=>inp.addEventListener("input",()=>{A.prods[+inp.dataset.p][inp.dataset.pk]=inp.value;save();}));
+  root.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{A.prods.splice(+b.dataset.del,1);save();paint(cur);}));
+  root.querySelectorAll("[data-addprod]").forEach(b=>b.addEventListener("click",()=>{if(A.prods.length>=20)return;A.prods.push({n:"",p:"",u:"Unidad"});save();paint(cur);
+     const ins=$("#s"+cur).querySelectorAll('[data-pk="n"]'); ins[ins.length-1].focus();}));
+  root.querySelectorAll("[data-color]").forEach(b=>b.addEventListener("click",()=>{A.color=b.dataset.color;save();root.querySelectorAll("[data-color]").forEach(x=>x.classList.toggle("sel",x===b));}));
+}
+function bindSummary(){
+  const t=summaryText();
+  $("#waBtn").href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t)}`;
+  $("#copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText(t.replace(/\*/g,""));toast("Resumen copiado ✓")}catch(e){toast("No se pudo copiar")}};
+  $("#editBtn").onclick=()=>go(1);
+}
+
+/* ===== Validación ===== */
+function err(m){const e=$("#s"+cur+" #err"); if(e) e.textContent=m;}
+function valid(){
+  const st=STEPS[cur];
+  if(st.type==="fields"){ for(const f of st.fields){ const v=(A[f.k]||"").trim();
+      if(f.req&&!v) return err(`Completá: ${f.l}`),false;
+      if(f.tel&&v&&v.replace(/\D/g,"").length<10) return err("Revisá el WhatsApp: código de área + número (10 dígitos)."),false;
+      if(f.email&&v&&!/^\S+@\S+\.\S+$/.test(v)) return err("Ese email no parece válido."),false; } }
+  if(st.type==="single"&&!A[st.k]&&!(A[st.k+"_otro"]||"").trim()) return err("Elegí una opción."),false;
+  if(st.type==="multi"&&(A[st.k]||[]).length<(st.min||0)) return err("Elegí al menos una opción."),false;
+  if(st.type==="text"&&(A[st.k]||"").trim().length<(st.min||0)) return err("Contanos un poquito más 🙂"),false;
+  if(st.type==="team"&&!(A.sectores||[]).length) return err("Elegí al menos un sector."),false;
+  if(st.type==="hours"&&!(A.dias||[]).length) return err("Elegí los días que abren."),false;
+  if(st.type==="cats"){ if(!(A.cats||[]).length) return err("Elegí al menos una categoría."),false; if(!A.cantProd) return err("Indicá cuántos productos tenés, más o menos."),false; if(!A.lista) return err("Contanos si tenés lista de precios."),false; }
+  if(st.type==="products"&&(A.prods||[]).some(p=>p.n&&p.p&&+p.p<=0)) return err("Revisá los precios: tienen que ser mayores a 0."),false;
+  if(st.type==="device"&&!A.device) return err("Elegí desde dónde van a cobrar."),false;
+  if(st.type==="brand"&&!A.logo) return err("Contanos si tenés logo."),false;
+  return true;
+}
+function next(){ if(cur>=STEPS.length-1) return; if(!STEPS[cur].intro&&!valid()) return; cur++; show(cur); }
+function prev(){ if(cur>0){cur--;show(cur);} }
+function go(i){cur=i;show(i);}
+$("#next").onclick=next; $("#back").onclick=prev;
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&!e.shiftKey&&e.target.tagName!=="TEXTAREA"){e.preventDefault();next();}
+  if(e.key==="Enter"&&e.ctrlKey){next();}
+  const st=STEPS[cur]; if(st.type==="single"&&/^[a-zA-Z]$/.test(e.key)&&e.target.tagName!=="INPUT"&&e.target.tagName!=="TEXTAREA"){
+    const o=$("#s"+cur).querySelectorAll(".opt")[e.key.toUpperCase().charCodeAt(0)-65]; if(o)o.click();}
+});
+/* Gestos: deslizar arriba/abajo y rueda del mouse */
+let ty=0,lock=false;
+main.addEventListener("touchstart",e=>{ty=e.touches[0].clientY},{passive:true});
+main.addEventListener("touchend",e=>{
+  const dy=ty-e.changedTouches[0].clientY, el=$("#s"+cur);
+  if(Math.abs(dy)<70||["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return;
+  if(dy>0&&el.scrollTop+el.clientHeight>=el.scrollHeight-4) next();
+  if(dy<0&&el.scrollTop<=0) prev();
+},{passive:true});
+main.addEventListener("wheel",e=>{
+  const el=$("#s"+cur); if(lock||Math.abs(e.deltaY)<30) return;
+  if(e.deltaY>0&&el.scrollTop+el.clientHeight<el.scrollHeight-4) return;
+  if(e.deltaY<0&&el.scrollTop>0) return;
+  lock=true; setTimeout(()=>lock=false,900); e.deltaY>0?next():prev();
+},{passive:true});
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),1800);}
+
+show(0);
+</script>
+</body>
+</html>
