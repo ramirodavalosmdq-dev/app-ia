@@ -59,7 +59,7 @@ Extras: stock e insumos +$15.000 · facturación ARCA +$12.000 · reconocimiento
 1. **Firebase** (Firestore + Auth): sincronizar en tiempo real la tablet del local y el celular del dueño. Licencias de prueba guardadas en Firestore para activar o bloquear sin tocar el código. Reglas de seguridad por negocio y por rol. Falta que Rami cree el proyecto y pase `firebaseConfig`.
 2. **Service worker** con actualización automática y el aviso "✨ Tu app se actualizó", que no recargue en medio de una venta.
 3. **Cuenta de GitHub nueva** (por ejemplo `app-ia`) con el repo `app-ia.github.io`, para que los links no muestren el usuario personal. Más adelante, dominio propio (por ejemplo `appia.com.ar`).
-4. **Registro de marca en el INPI**: "App-IA", marca mixta, clases 42 y 9 (opcional la 35). En la búsqueda, solo apareció "APPIA ANDINA TURISMO" en la clase 39.
+4. **Marca en el INPI — PRESENTADA:** "App-IA", solicitud/acta **N.º 4834102** (recibo de ingreso del 26/11/2026). Arancel de una clase pagado el 25/11/2026 ($42.043). Hasta que se conceda: usar "Marca en trámite", no ®. Revisar las notificaciones del portal del INPI: los plazos corren desde el día siguiente a cada notificación. Pendiente: sumar la clase 9 (y la 35, opcional).
 5. **Socio IA**: requiere una Cloud Function (plan Blaze) para no exponer la clave de la API. Resumen diario, consejos de producción, preguntas libres y lectura de listas de precios desde una foto.
 6. Brief: subir la foto de la lista de precios cuando esté Firebase.
 7. Videos institucionales: guiones listos para grabar con voz propia o CapCut.
